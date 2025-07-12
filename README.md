@@ -1,6 +1,35 @@
 # QuizCraft AI 🧠
 
+> Transform your study materials into intelligent quizzes and boost your memory retention by 47%!
+
 A modern, minimalistic AI-powered quiz application that transforms your study materials into intelligent flashcards and quizzes. Built with vanilla HTML, CSS, and JavaScript for optimal performance and simplicity.
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge)](https://unaveenj.github.io/QuizCraftAI/)
+[![GitHub License](https://img.shields.io/github/license/unaveenj/QuizCraftAI?style=for-the-badge)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/unaveenj/QuizCraftAI?style=for-the-badge)](https://github.com/unaveenj/QuizCraftAI/stargazers)
+
+## 📸 Screenshots
+
+### Landing Page
+*Clean, minimalistic design with instant understanding*
+
+![Landing Page Light Mode](screenshots/landing-light.png)
+*Light mode with clean statistics and call-to-action*
+
+![Landing Page Dark Mode](screenshots/landing-dark.png)
+*Dark mode for comfortable viewing*
+
+### Quiz Application Dashboard
+*Full-featured quiz creation and management*
+
+![Dashboard Overview](screenshots/dashboard.png)
+*Dashboard with statistics and quick actions*
+
+![Quiz Creation](screenshots/quiz-creation.png)
+*AI-powered quiz generation interface*
+
+![Settings Panel](screenshots/settings.png)
+*API configuration and preferences*
 
 ## ✨ Features
 
@@ -32,8 +61,8 @@ A modern, minimalistic AI-powered quiz application that transforms your study ma
 ### Installation
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/quiz-app.git
-   cd quiz-app
+   git clone https://github.com/unaveenj/QuizCraftAI.git
+   cd QuizCraftAI
    ```
 
 2. **Open locally**
@@ -49,7 +78,7 @@ A modern, minimalistic AI-powered quiz application that transforms your study ma
 ## 📁 Project Structure
 
 ```
-quiz-app/
+QuizCraftAI/
 ├── index.html          # Landing page
 ├── app.html           # Main quiz application
 ├── styles.css         # Unified styling for both pages
@@ -162,7 +191,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 If you encounter any issues or have questions:
-1. Check the [Issues](https://github.com/yourusername/quiz-app/issues) page
+1. Check the [Issues](https://github.com/unaveenj/QuizCraftAI/issues) page
 2. Create a new issue with detailed description
 3. Include browser version and error messages
 
