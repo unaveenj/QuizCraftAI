@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizCraft AI - Quiz App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard active">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i class="fas fa-brain"></i>
+                    <span>QuizCraft AI</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="overview">
+                    <i class="fas fa-home"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#" class="nav-item" data-page="create-quiz">
+                    <i class="fas fa-plus"></i>
+                    <span>Create Quiz</span>
+                </a>
+                <a href="#" class="nav-item" data-page="quiz-history">
+                    <i class="fas fa-history"></i>
+                    <span>Quiz History</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=Quiz+User&background=3b82f6&color=fff" alt="User">
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="user-name">Quiz User</div>
+                        <div class="user-email" id="user-email">user@quizcraft.ai</div>
+                    </div>
+                </div>
+                <a href="index.html" class="btn btn-ghost btn-sm">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Home
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard Overview</h1>
+                    <p id="page-description">Welcome back! Ready to learn something new?</p>
+                </div>
+                <div class="header-actions">
+                    <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn btn-primary" id="quick-create-btn">
+                        <i class="fas fa-plus"></i>
+                        New Quiz
+                    </button>
+                </div>
+            </header>
+
+            <!-- Overview Page -->
+            <div id="overview-page" class="page-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="total-quizzes">0</div>
+                            <div class="stat-label">Total Quizzes</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="avg-score">0%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="streak-days">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="study-time">0h</div>
+                            <div class="stat-label">Study Time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div id="recent-quizzes" class="activity-list">
+                            <p>No quizzes created yet. Click "New Quiz" to get started!</p>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="action-cards">
+                            <div class="action-card" onclick="navigateToPage('create-quiz')">
+                                <i class="fas fa-upload"></i>
+                                <h4>Upload Content</h4>
+                                <p>Upload documents or paste text to create new quizzes</p>
+                                <button class="btn btn-outline btn-sm">Get Started</button>
+                            </div>
+                            <div class="action-card" onclick="navigateToPage('settings')">
+                                <i class="fas fa-key"></i>
+                                <h4>Setup API Key</h4>
+                                <p>Configure your OpenAI API key for AI-powered questions</p>
+                                <button class="btn btn-outline btn-sm">Configure</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Quiz Page -->
+            <div id="create-quiz-page" class="page-content">
+                <div class="quiz-setup-container">
+                    <div class="setup-header">
+                        <h2>Create New Quiz</h2>
+                        <p>Upload your study material and let AI generate intelligent questions</p>
+                    </div>
+
+                    <div class="setup-grid">
+                        <div class="content-section">
+                            <div class="section-card">
+                                <h3><i class="fas fa-file-upload"></i> Content Input</h3>
+                                <div class="input-tabs">
+                                    <button class="tab-btn active" data-tab="text">Text Input</button>
+                                    <button class="tab-btn" data-tab="file">Upload Files</button>
+                                </div>
+                                
+                                <div class="tab-content">
+                                    <div id="text-tab-content" class="tab-pane active">
+                                        <textarea id="content-text" placeholder="Paste your study material here...
+
+Examples:
+• Lecture notes
+• Textbook chapters  
+• Documentation
+• Research papers
+
+The AI will analyze your content and generate contextual questions based on key concepts."></textarea>
+                                        <div class="content-stats">
+                                            <span id="char-count">0 characters</span>
+                                            <span id="word-count">0 words</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="file-tab-content" class="tab-pane">
+                                        <div class="file-upload-area">
+                                            <input type="file" id="file-upload" multiple accept=".txt,.md,.pdf">
+                                            <div class="upload-zone" id="upload-zone">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <h4>Drag files here or click to upload</h4>
+                                                <p>Supports: .txt, .md, .pdf files</p>
+                                            </div>
+                                            <div id="file-list" class="file-list"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <div class="section-card">
+                                <h3><i class="fas fa-cogs"></i> Quiz Settings</h3>
+                                
+                                <div class="setting-group">
+                                    <label>AI Model</label>
+                                    <select id="ai-model">
+                                        <option value="gpt-4o-mini" selected>GPT-4o Mini (Recommended)</option>
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                        <option value="gpt-4">GPT-4 (Higher Quality)</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                    </select>
+                                    <small class="help-text">GPT-4o Mini provides great quality at low cost</small>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Number of Questions</label>
+                                    <div class="range-input">
+                                        <input type="range" id="question-count" min="5" max="50" value="15">
+                                        <div class="range-labels">
+                                            <span>5</span>
+                                            <span id="question-count-display">15</span>
+                                            <span>50</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Difficulty Level</label>
+                                    <div class="difficulty-selector">
+                                        <button class="difficulty-btn" data-level="easy">
+                                            <i class="fas fa-seedling"></i>
+                                            Easy
+                                        </button>
+                                        <button class="difficulty-btn active" data-level="medium">
+                                            <i class="fas fa-leaf"></i>
+                                            Medium
+                                        </button>
+                                        <button class="difficulty-btn" data-level="hard">
+                                            <i class="fas fa-tree"></i>
+                                            Hard
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Question Types</label>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" checked value="multiple-choice">
+                                            <span class="checkmark"></span>
+                                            Multiple Choice
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" checked value="true-false">
+                                            <span class="checkmark"></span>
+                                            True/False
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" value="fill-blank">
+                                            <span class="checkmark"></span>
+                                            Fill in the Blank
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Focus Areas</label>
+                                    <select id="focus-area">
+                                        <option value="balanced">Balanced Mix</option>
+                                        <option value="definitions">Definitions & Terms</option>
+                                        <option value="concepts">Key Concepts</option>
+                                        <option value="applications">Applications & Examples</option>
+                                        <option value="relationships">Relationships & Connections</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="api-status-card">
+                                <div class="api-status" id="api-status">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>API Key Required</span>
+                                </div>
+                                <button class="btn btn-outline btn-sm" id="configure-api-btn">Configure API</button>
+                            </div>
+
+                            <button class="btn btn-primary btn-large btn-full" id="generate-quiz-btn" disabled>
+                                <i class="fas fa-magic"></i>
+                                Generate Quiz with AI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-page" class="page-content">
+                <div class="settings-container">
+                    <div class="settings-nav">
+                        <button class="settings-tab active" data-tab="api">API Configuration</button>
+                        <button class="settings-tab" data-tab="preferences">Preferences</button>
+                    </div>
+
+                    <div class="settings-content">
+                        <!-- API Configuration -->
+                        <div id="api-tab" class="settings-panel active">
+                            <div class="panel-header">
+                                <h3>API Configuration</h3>
+                                <p>Configure your OpenAI API key to enable AI-powered question generation</p>
+                            </div>
+
+                            <div class="api-config-form">
+                                <div class="form-group">
+                                    <label>OpenAI API Key</label>
+                                    <div class="input-with-button">
+                                        <input type="password" id="openai-api-key" placeholder="sk-...">
+                                        <button type="button" class="btn btn-outline" id="toggle-api-key">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="help-text">
+                                        Your API key is stored locally and never sent to our servers.
+                                        <a href="https://platform.openai.com/api-keys" target="_blank">Get your API key</a>
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Default Model</label>
+                                    <select id="default-model">
+                                        <option value="gpt-4o-mini" selected>GPT-4o Mini</option>
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                        <option value="gpt-4">GPT-4</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                    </select>
+                                </div>
+
+                                <div class="api-test-section">
+                                    <button class="btn btn-outline" id="test-api-btn">
+                                        <i class="fas fa-vial"></i>
+                                        Test Connection
+                                    </button>
+                                    <div id="api-test-result" class="test-result"></div>
+                                </div>
+
+                                <div class="cost-estimator">
+                                    <h4>Cost Estimator</h4>
+                                    <div class="cost-grid">
+                                        <div class="cost-item">
+                                            <span>GPT-4o Mini</span>
+                                            <span>~$0.001 per quiz</span>
+                                        </div>
+                                        <div class="cost-item">
+                                            <span>GPT-3.5 Turbo</span>
+                                            <span>~$0.002 per quiz</span>
+                                        </div>
+                                        <div class="cost-item">
+                                            <span>GPT-4</span>
+                                            <span>~$0.05 per quiz</span>
+                                        </div>
+                                        <div class="cost-item">
+                                            <span>GPT-4 Turbo</span>
+                                            <span>~$0.02 per quiz</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preferences -->
+                        <div id="preferences-tab" class="settings-panel">
+                            <div class="panel-header">
+                                <h3>Preferences</h3>
+                                <p>Customize your learning experience</p>
+                            </div>
+
+                            <div class="preferences-form">
+                                <div class="form-group">
+                                    <label>Default Quiz Length</label>
+                                    <select id="default-quiz-length">
+                                        <option value="10">10 questions</option>
+                                        <option value="15">15 questions</option>
+                                        <option value="20">20 questions</option>
+                                        <option value="25">25 questions</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Auto-save Progress</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="auto-save" checked>
+                                        <span class="slider"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Show Explanations</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="show-explanations" checked>
+                                        <span class="slider"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz History Page -->
+            <div id="quiz-history-page" class="page-content">
+                <div class="history-container">
+                    <div class="history-header">
+                        <h2>Quiz History</h2>
+                        <div class="history-filters">
+                            <select id="history-filter">
+                                <option value="all">All Quizzes</option>
+                                <option value="week">Last Week</option>
+                                <option value="month">Last Month</option>
+                                <option value="completed">Completed Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="quiz-history-list" class="history-list">
+                        <p>No quiz history yet. Create your first quiz to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
