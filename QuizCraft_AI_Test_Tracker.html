@@ -39,6 +39,12 @@
             flex-wrap: wrap;
             align-items: center;
         }
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
         .btn {
             padding: 10px 20px;
             border: none;
@@ -60,6 +66,13 @@
         }
         .btn-success:hover {
             background: #059669;
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
         }
         .stats {
             display: flex;
@@ -131,13 +144,72 @@
         tr.fail:hover {
             background-color: #fecaca !important;
         }
-        .status-select {
-            padding: 5px 10px;
+        .status-checkboxes {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .status-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .status-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .status-checkbox.pass {
+            color: #059669;
+        }
+        .status-checkbox.fail {
+            color: #dc2626;
+        }
+        .file-input {
+            padding: 8px 12px;
             border: 1px solid #d1d5db;
             border-radius: 4px;
             background: white;
+            font-size: 0.9rem;
+        }
+        .add-test-form {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: none;
+        }
+        .add-test-form.active {
+            display: block;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            max-width: 100px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
         }
         .test-id {
             font-weight: bold;
@@ -197,15 +269,32 @@
         </div>
         
         <div class="controls">
-            <button class="btn btn-primary" onclick="downloadExcel()">
-                📊 Download Excel File
-            </button>
-            <button class="btn btn-success" onclick="resetAllTests()">
-                🔄 Reset All Tests
-            </button>
-            <button class="btn btn-primary" onclick="exportResults()">
-                📋 Export Results
-            </button>
+            <div class="controls-row">
+                <button class="btn btn-primary" onclick="downloadExcel()">
+                    📊 Download Excel
+                </button>
+                <button class="btn btn-success" onclick="exportResults()">
+                    💾 Save Results
+                </button>
+                <input type="file" id="loadFile" class="file-input" accept=".json" onchange="loadResults()" style="display: none;">
+                <button class="btn btn-primary" onclick="document.getElementById('loadFile').click()">
+                    📂 Load Results
+                </button>
+                <button class="btn btn-success" onclick="toggleAddTestForm()">
+                    ➕ Add Test Case
+                </button>
+            </div>
+            <div class="controls-row">
+                <button class="btn btn-success" onclick="resetAllTests()">
+                    🔄 Reset All
+                </button>
+                <button class="btn btn-primary" onclick="showFailedOnly()">
+                    ❌ Show Failed Only
+                </button>
+                <button class="btn btn-primary" onclick="showAll()">
+                    📋 Show All
+                </button>
+            </div>
             
             <div class="stats">
                 <div class="stat">
@@ -229,6 +318,46 @@
         
         <div class="content">
             <div class="table-container">
+                <!-- Add Test Case Form -->
+                <div id="addTestForm" class="add-test-form">
+                    <h3>➕ Add New Test Case</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Test ID</label>
+                            <input type="text" id="newTestId" placeholder="e.g., T016-01">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input type="text" id="newTestCategory" placeholder="e.g., New Feature">
+                        </div>
+                        <div class="form-group">
+                            <label>Severity</label>
+                            <select id="newTestSeverity">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Test Description</label>
+                            <textarea id="newTestDescription" placeholder="Describe what needs to be tested..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expected Result</label>
+                            <textarea id="newTestExpected" placeholder="Describe the expected outcome..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button class="btn btn-success" onclick="addNewTestCase()">✅ Add Test Case</button>
+                        <button class="btn btn-secondary" onclick="cancelAddTestCase()">❌ Cancel</button>
+                    </div>
+                </div>
+                
                 <table id="testTable">
                     <thead>
                         <tr>
@@ -262,8 +391,8 @@
     </div>
 
     <script>
-        // Test cases data
-        const testCases = [
+        // Test cases data - now modifiable
+        let testCases = [
             // Initial Setup & Landing Page
             { id: "T001-01", category: "Landing Page", description: "Open index.html in browser without errors", severity: "critical", expected: "Page loads successfully" },
             { id: "T001-02", category: "Landing Page", description: "Verify hero section displays with stats (47%, 3x, 92%)", severity: "high", expected: "All statistics visible and correct" },
@@ -408,11 +537,16 @@
                     <td><span class="severity ${test.severity}">${test.severity.toUpperCase()}</span></td>
                     <td>${test.expected}</td>
                     <td>
-                        <select class="status-select" onchange="updateTestStatus(${index}, this.value)">
-                            <option value="">-</option>
-                            <option value="pass">Pass</option>
-                            <option value="fail">Fail</option>
-                        </select>
+                        <div class="status-checkboxes">
+                            <label class="status-checkbox pass">
+                                <input type="checkbox" onchange="updateTestStatus(${index}, 'pass', this.checked)">
+                                ✅ Pass
+                            </label>
+                            <label class="status-checkbox fail">
+                                <input type="checkbox" onchange="updateTestStatus(${index}, 'fail', this.checked)">
+                                ❌ Fail
+                            </label>
+                        </div>
                     </td>
                     <td><input type="text" placeholder="Notes..." style="width: 100%; border: 1px solid #d1d5db; padding: 4px; border-radius: 3px;" onchange="updateTestNotes(${index}, this.value)"></td>
                 `;
@@ -420,14 +554,33 @@
             });
         }
 
-        // Update test status
-        function updateTestStatus(index, status) {
+        // Update test status with checkbox logic
+        function updateTestStatus(index, status, checked) {
             const row = document.querySelector(`#testTableBody tr:nth-child(${index + 1})`);
-            row.className = status; // Add 'pass' or 'fail' class
+            const passCheckbox = row.querySelector('.status-checkbox.pass input');
+            const failCheckbox = row.querySelector('.status-checkbox.fail input');
+            
+            if (checked) {
+                // If this checkbox is checked, uncheck the other one
+                if (status === 'pass') {
+                    failCheckbox.checked = false;
+                    row.className = 'pass';
+                } else if (status === 'fail') {
+                    passCheckbox.checked = false;
+                    row.className = 'fail';
+                }
+            } else {
+                // If unchecked, remove the status
+                row.className = '';
+                status = '';
+            }
             
             // Save to localStorage
             const savedData = JSON.parse(localStorage.getItem('testResults') || '{}');
-            savedData[testCases[index].id] = { status, notes: savedData[testCases[index].id]?.notes || '' };
+            if (!savedData[testCases[index].id]) {
+                savedData[testCases[index].id] = { status: '', notes: '' };
+            }
+            savedData[testCases[index].id].status = status;
             localStorage.setItem('testResults', JSON.stringify(savedData));
             
             updateStats();
@@ -451,15 +604,19 @@
             testCases.forEach((test, index) => {
                 if (savedData[test.id]) {
                     const row = document.querySelector(`#testTableBody tr:nth-child(${index + 1})`);
-                    const select = row.querySelector('.status-select');
+                    const passCheckbox = row.querySelector('.status-checkbox.pass input');
+                    const failCheckbox = row.querySelector('.status-checkbox.fail input');
                     const notesInput = row.querySelector('input[type="text"]');
                     
-                    select.value = savedData[test.id].status;
-                    notesInput.value = savedData[test.id].notes;
-                    
-                    if (savedData[test.id].status) {
-                        row.className = savedData[test.id].status;
+                    if (savedData[test.id].status === 'pass') {
+                        passCheckbox.checked = true;
+                        row.className = 'pass';
+                    } else if (savedData[test.id].status === 'fail') {
+                        failCheckbox.checked = true;
+                        row.className = 'fail';
                     }
+                    
+                    notesInput.value = savedData[test.id].notes;
                 }
             });
             
@@ -584,24 +741,159 @@
             const savedData = JSON.parse(localStorage.getItem('testResults') || '{}');
             const results = {
                 timestamp: new Date().toISOString(),
+                version: "1.0",
                 summary: {
                     total: testCases.length,
                     passed: Object.values(savedData).filter(r => r.status === 'pass').length,
                     failed: Object.values(savedData).filter(r => r.status === 'fail').length
                 },
-                testCases: testCases.map(test => ({
-                    ...test,
-                    result: savedData[test.id] || { status: '', notes: '' }
-                }))
+                testCases: testCases,
+                testResults: savedData
             };
             
             const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'QuizCraft_AI_Test_Results.json';
+            a.download = `QuizCraft_AI_Test_Results_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        // Load results from file
+        function loadResults() {
+            const fileInput = document.getElementById('loadFile');
+            const file = fileInput.files[0];
+            
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Load test cases if they exist in the file
+                    if (data.testCases) {
+                        testCases = data.testCases;
+                    }
+                    
+                    // Load test results
+                    if (data.testResults) {
+                        localStorage.setItem('testResults', JSON.stringify(data.testResults));
+                    }
+                    
+                    // Refresh the interface
+                    populateTestTable();
+                    loadSavedData();
+                    updateStats();
+                    updateChart();
+                    
+                    alert(`✅ Test results loaded successfully!\nLoaded ${Object.keys(data.testResults || {}).length} test results from ${data.timestamp ? new Date(data.timestamp).toLocaleDateString() : 'unknown date'}`);
+                    
+                } catch (error) {
+                    alert('❌ Error loading file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            fileInput.value = '';
+        }
+
+        // Toggle add test form
+        function toggleAddTestForm() {
+            const form = document.getElementById('addTestForm');
+            form.classList.toggle('active');
+            
+            if (form.classList.contains('active')) {
+                // Generate next test ID
+                const lastId = testCases.length > 0 ? testCases[testCases.length - 1].id : 'T000-00';
+                const parts = lastId.split('-');
+                const testNum = parseInt(parts[0].substring(1));
+                const subNum = parseInt(parts[1]);
+                
+                let nextId;
+                if (subNum < 99) {
+                    nextId = `T${String(testNum).padStart(3, '0')}-${String(subNum + 1).padStart(2, '0')}`;
+                } else {
+                    nextId = `T${String(testNum + 1).padStart(3, '0')}-01`;
+                }
+                
+                document.getElementById('newTestId').value = nextId;
+            }
+        }
+
+        // Add new test case
+        function addNewTestCase() {
+            const id = document.getElementById('newTestId').value.trim();
+            const category = document.getElementById('newTestCategory').value.trim();
+            const severity = document.getElementById('newTestSeverity').value;
+            const description = document.getElementById('newTestDescription').value.trim();
+            const expected = document.getElementById('newTestExpected').value.trim();
+            
+            // Validation
+            if (!id || !category || !description || !expected) {
+                alert('❌ Please fill in all required fields');
+                return;
+            }
+            
+            // Check for duplicate ID
+            if (testCases.find(test => test.id === id)) {
+                alert('❌ Test ID already exists. Please use a different ID.');
+                return;
+            }
+            
+            // Add new test case
+            const newTest = { id, category, description, severity, expected };
+            testCases.push(newTest);
+            
+            // Refresh table
+            populateTestTable();
+            loadSavedData();
+            updateStats();
+            
+            // Hide form and clear inputs
+            cancelAddTestCase();
+            
+            alert('✅ Test case added successfully!');
+        }
+
+        // Cancel add test case
+        function cancelAddTestCase() {
+            const form = document.getElementById('addTestForm');
+            form.classList.remove('active');
+            
+            // Clear form
+            document.getElementById('newTestId').value = '';
+            document.getElementById('newTestCategory').value = '';
+            document.getElementById('newTestSeverity').value = 'medium';
+            document.getElementById('newTestDescription').value = '';
+            document.getElementById('newTestExpected').value = '';
+        }
+
+        // Show only failed tests
+        function showFailedOnly() {
+            const savedData = JSON.parse(localStorage.getItem('testResults') || '{}');
+            const rows = document.querySelectorAll('#testTableBody tr');
+            
+            rows.forEach((row, index) => {
+                const testId = testCases[index].id;
+                const result = savedData[testId];
+                
+                if (result && result.status === 'fail') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Show all tests
+        function showAll() {
+            const rows = document.querySelectorAll('#testTableBody tr');
+            rows.forEach(row => {
+                row.style.display = '';
+            });
         }
 
         // Initialize on page load
