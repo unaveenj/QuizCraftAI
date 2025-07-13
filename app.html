@@ -19,11 +19,11 @@
                 </div>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" data-page="overview">
+                <a href="#" class="nav-item" data-page="overview">
                     <i class="fas fa-home"></i>
                     <span>Overview</span>
                 </a>
-                <a href="#" class="nav-item" data-page="create-quiz">
+                <a href="#" class="nav-item active" data-page="create-quiz">
                     <i class="fas fa-plus"></i>
                     <span>Create Quiz</span>
                 </a>
@@ -37,15 +37,6 @@
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=Quiz+User&background=3b82f6&color=fff" alt="User">
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name" id="user-name">Quiz User</div>
-                        <div class="user-email" id="user-email">user@quizcraft.ai</div>
-                    </div>
-                </div>
                 <a href="index.html" class="btn btn-ghost btn-sm">
                     <i class="fas fa-arrow-left"></i>
                     Back to Home
@@ -60,6 +51,15 @@
                     <p id="page-description">Welcome back! Ready to learn something new?</p>
                 </div>
                 <div class="header-actions">
+                    <div class="usage-meter" id="usage-meter">
+                        <div class="usage-info">
+                            <span class="usage-tokens" id="usage-tokens">0 tokens</span>
+                            <span class="usage-cost" id="usage-cost">~$0.00</span>
+                        </div>
+                        <button class="usage-reset" id="reset-usage" title="Reset usage counter">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                    </div>
                     <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode">
                         <i class="fas fa-moon"></i>
                     </button>
@@ -71,46 +71,7 @@
             </header>
 
             <!-- Overview Page -->
-            <div id="overview-page" class="page-content active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="total-quizzes">0</div>
-                            <div class="stat-label">Total Quizzes</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="avg-score">0%</div>
-                            <div class="stat-label">Average Score</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-fire"></i>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="streak-days">0</div>
-                            <div class="stat-label">Day Streak</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-value" id="study-time">0h</div>
-                            <div class="stat-label">Study Time</div>
-                        </div>
-                    </div>
-                </div>
-
+            <div id="overview-page" class="page-content">
                 <div class="content-grid">
                     <div class="recent-activity">
                         <h3>Recent Activity</h3>
@@ -139,7 +100,7 @@
             </div>
 
             <!-- Create Quiz Page -->
-            <div id="create-quiz-page" class="page-content">
+            <div id="create-quiz-page" class="page-content active">
                 <div class="quiz-setup-container">
                     <div class="setup-header">
                         <h2>Create New Quiz</h2>
@@ -149,23 +110,24 @@
                     <div class="setup-grid">
                         <div class="content-section">
                             <div class="section-card">
-                                <h3><i class="fas fa-file-upload"></i> Content Input</h3>
+                                <h3><i class="fas fa-lightbulb"></i> Quiz Request</h3>
                                 <div class="input-tabs">
-                                    <button class="tab-btn active" data-tab="text">Text Input</button>
-                                    <button class="tab-btn" data-tab="file">Upload Files</button>
+                                    <button class="tab-btn active" data-tab="text">Quiz Description</button>
+                                    <button class="tab-btn" data-tab="file">Upload Materials</button>
                                 </div>
                                 
                                 <div class="tab-content">
                                     <div id="text-tab-content" class="tab-pane active">
-                                        <textarea id="content-text" placeholder="Paste your study material here...
+                                        <textarea id="content-text" placeholder="Describe what kind of quiz you want to create...
 
 Examples:
-• Lecture notes
-• Textbook chapters  
-• Documentation
-• Research papers
+• 'Create a quiz about JavaScript functions and closures'
+• 'Test my knowledge of photosynthesis and plant biology'  
+• 'Quiz me on World War 2 timeline and key events'
+• 'Generate questions about Python data structures'
+• 'Create a marketing strategy and customer segmentation quiz'
 
-The AI will analyze your content and generate contextual questions based on key concepts."></textarea>
+Be specific about the topic, difficulty level, and what you want to focus on. You can also upload files below and describe how to use them."></textarea>
                                         <div class="content-stats">
                                             <span id="char-count">0 characters</span>
                                             <span id="word-count">0 words</span>
@@ -174,11 +136,12 @@ The AI will analyze your content and generate contextual questions based on key 
                                     
                                     <div id="file-tab-content" class="tab-pane">
                                         <div class="file-upload-area">
-                                            <input type="file" id="file-upload" multiple accept=".txt,.md,.pdf">
+                                            <input type="file" id="file-upload" multiple accept=".txt,.md,.pdf,.docx,.pptx">
                                             <div class="upload-zone" id="upload-zone">
                                                 <i class="fas fa-cloud-upload-alt"></i>
-                                                <h4>Drag files here or click to upload</h4>
-                                                <p>Supports: .txt, .md, .pdf files</p>
+                                                <h4>Upload your study materials</h4>
+                                                <p>Supports: .txt, .md, .pdf, .docx, .pptx files</p>
+                                                <small>Then use the text area to describe what kind of quiz to create from these materials</small>
                                             </div>
                                             <div id="file-list" class="file-list"></div>
                                         </div>
@@ -194,12 +157,10 @@ The AI will analyze your content and generate contextual questions based on key 
                                 <div class="setting-group">
                                     <label>AI Model</label>
                                     <select id="ai-model">
-                                        <option value="gpt-4o-mini" selected>GPT-4o Mini (Recommended)</option>
-                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                                        <option value="gpt-4">GPT-4 (Higher Quality)</option>
-                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                        <option value="gpt-4o-mini" selected>GPT-4o Mini (Recommended - Cheapest & Fast)</option>
+                                        <option value="gpt-4o">GPT-4o (Higher Quality)</option>
                                     </select>
-                                    <small class="help-text">GPT-4o Mini provides great quality at low cost</small>
+                                    <small class="help-text">GPT-4o Mini is the most cost-effective option. GPT-4o provides higher quality at a slightly higher cost.</small>
                                 </div>
 
                                 <div class="setting-group">
@@ -300,7 +261,24 @@ The AI will analyze your content and generate contextual questions based on key 
 
                             <div class="api-config-form">
                                 <div class="form-group">
-                                    <label>OpenAI API Key</label>
+                                    <label>
+                                        OpenAI API Key
+                                        <button type="button" class="info-btn" id="api-key-info">
+                                            <i class="fas fa-info-circle"></i>
+                                        </button>
+                                        <div class="tooltip" id="api-key-tooltip">
+                                            <h4>How to get your OpenAI API Key:</h4>
+                                            <ol>
+                                                <li>Go to <a href="https://platform.openai.com" target="_blank">platform.openai.com</a></li>
+                                                <li>Sign up or log in to your account</li>
+                                                <li>Navigate to <a href="https://platform.openai.com/api-keys" target="_blank">API Keys section</a></li>
+                                                <li>Click "Create new secret key"</li>
+                                                <li>Copy the key (starts with "sk-")</li>
+                                                <li>Paste it here and test the connection</li>
+                                            </ol>
+                                            <p><strong>Note:</strong> You need to add billing information to use the API. Most quizzes cost less than $0.01 with o1-Mini.</p>
+                                        </div>
+                                    </label>
                                     <div class="input-with-button">
                                         <input type="password" id="openai-api-key" placeholder="sk-...">
                                         <button type="button" class="btn btn-outline" id="toggle-api-key">
@@ -317,9 +295,7 @@ The AI will analyze your content and generate contextual questions based on key 
                                     <label>Default Model</label>
                                     <select id="default-model">
                                         <option value="gpt-4o-mini" selected>GPT-4o Mini</option>
-                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                                        <option value="gpt-4">GPT-4</option>
-                                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                        <option value="gpt-4o">GPT-4o</option>
                                     </select>
                                 </div>
 
@@ -327,6 +303,10 @@ The AI will analyze your content and generate contextual questions based on key 
                                     <button class="btn btn-outline" id="test-api-btn">
                                         <i class="fas fa-vial"></i>
                                         Test Connection
+                                    </button>
+                                    <button class="btn btn-outline" id="diagnose-api-btn" style="margin-left: 1rem;">
+                                        <i class="fas fa-stethoscope"></i>
+                                        Diagnose Issues
                                     </button>
                                     <div id="api-test-result" class="test-result"></div>
                                 </div>
@@ -339,16 +319,8 @@ The AI will analyze your content and generate contextual questions based on key 
                                             <span>~$0.001 per quiz</span>
                                         </div>
                                         <div class="cost-item">
-                                            <span>GPT-3.5 Turbo</span>
-                                            <span>~$0.002 per quiz</span>
-                                        </div>
-                                        <div class="cost-item">
-                                            <span>GPT-4</span>
-                                            <span>~$0.05 per quiz</span>
-                                        </div>
-                                        <div class="cost-item">
-                                            <span>GPT-4 Turbo</span>
-                                            <span>~$0.02 per quiz</span>
+                                            <span>GPT-4o</span>
+                                            <span>~$0.01 per quiz</span>
                                         </div>
                                     </div>
                                 </div>

@@ -1,5 +1,436 @@
 /* Modern SaaS CSS for QuizCraft AI */
 
+/* Quiz Interface Styles */
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.quiz-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.quiz-progress {
+    margin: 1rem 0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent-color);
+    transition: width 0.3s ease;
+}
+
+.question-container {
+    background: var(--bg-secondary);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.question-container h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.options-container .option {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.options-container .option:hover {
+    border-color: var(--accent-color);
+}
+
+.options-container .option input[type="radio"] {
+    margin-right: 1rem;
+}
+
+.options-container .option label {
+    cursor: pointer;
+    width: 100%;
+    display: block;
+}
+
+.fill-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: var(--border-radius-md);
+    font-size: 1rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.quiz-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.results-container {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+}
+
+.score-display {
+    margin: 2rem 0;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.score-text {
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.results-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+/* API Test Result Styles */
+.test-result {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius-md);
+    font-size: 0.875rem;
+    display: none;
+}
+
+.test-result.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #10b981;
+    display: block;
+}
+
+.test-result.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #ef4444;
+    display: block;
+}
+
+.test-result.warning {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    display: block;
+}
+
+.test-result.info {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #3b82f6;
+    display: block;
+}
+
+/* Dark theme test results */
+[data-theme="dark"] .test-result.success {
+    background: #064e3b;
+    color: #a7f3d0;
+    border-color: #065f46;
+}
+
+[data-theme="dark"] .test-result.error {
+    background: #7f1d1d;
+    color: #fecaca;
+    border-color: #991b1b;
+}
+
+[data-theme="dark"] .test-result.warning {
+    background: #78350f;
+    color: #fcd34d;
+    border-color: #92400e;
+}
+
+[data-theme="dark"] .test-result.info {
+    background: #1e3a8a;
+    color: #93c5fd;
+    border-color: #1d4ed8;
+}
+
+/* Loading button animation */
+.btn.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* API Key Info Tooltip */
+.info-btn {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    margin-left: 0.5rem;
+    font-size: 0.875rem;
+    position: relative;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.info-btn:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+.info-btn .tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.5rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 350px;
+    z-index: 1000;
+    border: 1px solid var(--gray-300);
+    text-align: left;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+}
+
+.info-btn:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip h4 {
+    margin: 0 0 1rem 0;
+    color: var(--accent-color);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.tooltip ol {
+    margin: 0 0 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.tooltip li {
+    margin: 0.5rem 0;
+}
+
+.tooltip a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.tooltip a:hover {
+    text-decoration: underline;
+}
+
+.tooltip p {
+    margin: 1rem 0 0 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 0.75rem;
+    border-radius: var(--border-radius-md);
+    border-left: 3px solid var(--accent-color);
+}
+
+.tooltip strong {
+    color: var(--text-primary);
+}
+
+/* Tooltip arrow */
+.tooltip::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--gray-300);
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--bg-primary);
+}
+
+/* Dark theme tooltip */
+[data-theme="dark"] .tooltip {
+    background: var(--bg-secondary);
+    border-color: var(--gray-600);
+}
+
+[data-theme="dark"] .tooltip::before {
+    border-bottom-color: var(--gray-600);
+}
+
+[data-theme="dark"] .tooltip::after {
+    border-bottom-color: var(--bg-secondary);
+}
+
+/* Usage Meter Styles */
+.usage-meter {
+    display: flex;
+    align-items: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    gap: 1rem;
+    transition: all 0.2s ease;
+}
+
+.usage-meter:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.usage-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+}
+
+.usage-tokens {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.usage-cost {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.usage-reset {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.usage-reset:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: rotate(180deg);
+}
+
+/* Usage meter color states */
+.usage-meter.low-usage .usage-cost {
+    color: var(--success-500);
+}
+
+.usage-meter.medium-usage .usage-cost {
+    color: var(--warning-500);
+}
+
+.usage-meter.high-usage .usage-cost {
+    color: var(--error-500);
+}
+
+/* Mobile responsive tooltip */
+@media (max-width: 768px) {
+    .tooltip {
+        width: 280px;
+        font-size: 0.8rem;
+        padding: 1rem;
+    }
+    
+    .tooltip h4 {
+        font-size: 0.9rem;
+    }
+    
+    .usage-meter {
+        padding: 0.4rem 0.8rem;
+        margin-right: 0.5rem;
+    }
+    
+    .usage-info {
+        font-size: 0.8rem;
+    }
+    
+    .usage-tokens {
+        font-size: 0.8rem;
+    }
+    
+    .usage-cost {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .quiz-controls {
+        flex-direction: column;
+    }
+    
+    .results-actions {
+        flex-direction: column;
+    }
+}
+
 :root {
     --primary-50: #f8fafc;
     --primary-100: #f1f5f9;
@@ -516,13 +947,14 @@ body {
 
 .btn-outline {
     background: transparent;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
 }
 
 .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
 }
 
 .btn-ghost {
