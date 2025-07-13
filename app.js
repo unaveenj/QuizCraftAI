@@ -616,8 +616,35 @@ Rules:
         if (question.type === 'fill-blank') {
             optionsContainer.innerHTML = `
                 <input type="text" id="fill-answer" class="fill-input" placeholder="Enter your answer" onkeypress="if(event.key==='Enter') window.quizApp.checkFillBlankAnswer()">
-                <button onclick="window.quizApp.checkFillBlankAnswer()" class="btn btn-primary" style="margin-top: 1rem;">Check Answer</button>
+                <button onclick="window.quizApp.checkFillBlankAnswer()" class="btn btn-primary" style="margin-top: 1rem;">Submit Answer</button>
             `;
+            
+            // If question was already answered, show the previous answer and disable input
+            if (this.questionAnswered[this.currentQuestion]) {
+                setTimeout(() => {
+                    const input = document.getElementById('fill-answer');
+                    const button = input.nextElementSibling;
+                    const userAnswer = this.userAnswers[this.currentQuestion];
+                    const isCorrect = userAnswer && userAnswer.toLowerCase().trim() === question.correct.toLowerCase().trim();
+                    
+                    input.value = userAnswer;
+                    input.disabled = true;
+                    button.disabled = true;
+                    button.textContent = isCorrect ? '✅ Correct!' : '❌ Incorrect';
+                    
+                    if (isCorrect) {
+                        input.style.borderColor = '#10b981';
+                        input.style.backgroundColor = '#dcfce7';
+                        button.style.backgroundColor = '#10b981';
+                        button.style.color = 'white';
+                    } else {
+                        input.style.borderColor = '#ef4444';
+                        input.style.backgroundColor = '#fee2e2';
+                        button.style.backgroundColor = '#ef4444';
+                        button.style.color = 'white';
+                    }
+                }, 100);
+            }
         } else {
             question.options.forEach((option, index) => {
                 const button = document.createElement('button');
@@ -726,14 +753,29 @@ Rules:
         
         const isCorrect = userAnswer.toLowerCase() === question.correct.toLowerCase();
         
-        // Save the answer
+        // Save the answer as string for fill-blank questions
         this.userAnswers[this.currentQuestion] = userAnswer;
         this.questionAnswered[this.currentQuestion] = true;
         
         // Update input appearance
         const input = document.getElementById('fill-answer');
+        const button = input.nextElementSibling;
         input.disabled = true;
-        input.className += isCorrect ? ' correct' : ' incorrect';
+        button.disabled = true;
+        button.textContent = isCorrect ? '✅ Correct!' : '❌ Incorrect';
+        
+        // Add visual feedback classes
+        if (isCorrect) {
+            input.style.borderColor = '#10b981';
+            input.style.backgroundColor = '#dcfce7';
+            button.style.backgroundColor = '#10b981';
+            button.style.color = 'white';
+        } else {
+            input.style.borderColor = '#ef4444';
+            input.style.backgroundColor = '#fee2e2';
+            button.style.backgroundColor = '#ef4444';
+            button.style.color = 'white';
+        }
         
         // Show explanation
         if (question.explanation) {
@@ -760,12 +802,21 @@ Rules:
         `;
         
         if (isCorrect === false && userAnswer !== null && correctAnswer !== null) {
-            const userAnswerText = this.questions[this.currentQuestion].options[userAnswer];
-            const correctAnswerText = this.questions[this.currentQuestion].options[correctAnswer];
-            explanationHTML += `
-                <p><strong>Your answer:</strong> ${userAnswerText}</p>
-                <p><strong>Correct answer:</strong> ${correctAnswerText}</p>
-            `;
+            // Handle different question types
+            const question = this.questions[this.currentQuestion];
+            if (question.type === 'fill-blank') {
+                explanationHTML += `
+                    <p><strong>Your answer:</strong> ${userAnswer}</p>
+                    <p><strong>Correct answer:</strong> ${correctAnswer}</p>
+                `;
+            } else {
+                const userAnswerText = question.options[userAnswer];
+                const correctAnswerText = question.options[correctAnswer];
+                explanationHTML += `
+                    <p><strong>Your answer:</strong> ${userAnswerText}</p>
+                    <p><strong>Correct answer:</strong> ${correctAnswerText}</p>
+                `;
+            }
         }
         
         explanationHTML += '</div>';
@@ -792,7 +843,19 @@ Rules:
     }
 
     submitQuiz() {
-        this.saveAnswer();
+        // Check if all questions have been answered
+        const unansweredQuestions = [];
+        this.questions.forEach((question, index) => {
+            if (!this.questionAnswered[index]) {
+                unansweredQuestions.push(index + 1);
+            }
+        });
+        
+        if (unansweredQuestions.length > 0) {
+            alert(`Please answer all questions before submitting. Unanswered questions: ${unansweredQuestions.join(', ')}`);
+            return;
+        }
+        
         this.calculateScore();
         this.showResults();
     }
@@ -802,11 +865,14 @@ Rules:
         this.questions.forEach((question, index) => {
             const userAnswer = this.userAnswers[index];
             if (question.type === 'fill-blank') {
-                if (userAnswer && userAnswer.toLowerCase().trim() === question.correct.toLowerCase().trim()) {
+                // For fill-blank, userAnswer is a string, compare with correct answer string
+                if (userAnswer && typeof userAnswer === 'string' && 
+                    userAnswer.toLowerCase().trim() === question.correct.toLowerCase().trim()) {
                     this.score++;
                 }
             } else {
-                if (userAnswer === question.correct) {
+                // For multiple choice, userAnswer is an index, compare with correct index
+                if (typeof userAnswer === 'number' && userAnswer === question.correct) {
                     this.score++;
                 }
             }
@@ -821,8 +887,14 @@ Rules:
         this.questions.forEach((question, index) => {
             const userAnswer = this.userAnswers[index];
             const isCorrect = userAnswer === question.correct;
-            const userAnswerText = userAnswer !== null ? question.options[userAnswer] : 'Not answered';
-            const correctAnswerText = question.options[question.correct];
+            let userAnswerText, correctAnswerText;
+            if (question.type === 'fill-blank') {
+                userAnswerText = userAnswer !== null ? userAnswer : 'Not answered';
+                correctAnswerText = question.correct;
+            } else {
+                userAnswerText = userAnswer !== null ? question.options[userAnswer] : 'Not answered';
+                correctAnswerText = question.options[question.correct];
+            }
             
             reviewHTML += `
                 <div class="review-item ${isCorrect ? 'correct' : 'incorrect'}">
