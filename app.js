@@ -7,6 +7,7 @@ class QuizCraftApp {
         this.score = 0;
         this.questions = [];
         this.userAnswers = [];
+        this.questionAnswered = []; // Track which questions have been answered
         this.quizHistory = JSON.parse(localStorage.getItem('quiz_history')) || [];
         this.userStats = JSON.parse(localStorage.getItem('user_stats')) || {};
         this.usageStats = JSON.parse(localStorage.getItem('usage_stats')) || {
@@ -541,6 +542,7 @@ Rules:
         this.currentQuestion = 0;
         this.score = 0;
         this.userAnswers = [];
+        this.questionAnswered = new Array(this.questions.length).fill(false);
         this.showQuizInterface();
         this.displayQuestion();
     }
@@ -574,9 +576,10 @@ Rules:
                     <div class="question-container">
                         <h3 id="current-question">Question will appear here</h3>
                         <div id="question-options" class="options-container"></div>
+                        <div id="explanation-container"></div>
                         <div class="quiz-controls">
                             <button id="prev-btn" class="btn btn-outline" disabled>Previous</button>
-                            <button id="next-btn" class="btn btn-primary">Next</button>
+                            <button id="next-btn" class="btn btn-primary" style="display: none;">Next Question</button>
                             <button id="submit-quiz" class="btn btn-success" style="display: none;">Submit Quiz</button>
                         </div>
                     </div>
@@ -603,34 +606,173 @@ Rules:
         const progress = ((this.currentQuestion + 1) / this.questions.length) * 100;
         document.getElementById('progress-fill').style.width = `${progress}%`;
         
+        // Clear explanation container
+        document.getElementById('explanation-container').innerHTML = '';
+        
         // Display options
         const optionsContainer = document.getElementById('question-options');
         optionsContainer.innerHTML = '';
         
         if (question.type === 'fill-blank') {
             optionsContainer.innerHTML = `
-                <input type="text" id="fill-answer" class="fill-input" placeholder="Enter your answer">
+                <input type="text" id="fill-answer" class="fill-input" placeholder="Enter your answer" onkeypress="if(event.key==='Enter') window.quizApp.checkFillBlankAnswer()">
+                <button onclick="window.quizApp.checkFillBlankAnswer()" class="btn btn-primary" style="margin-top: 1rem;">Check Answer</button>
             `;
         } else {
             question.options.forEach((option, index) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option';
-                optionDiv.innerHTML = `
-                    <input type="radio" name="answer" value="${index}" id="option-${index}">
-                    <label for="option-${index}">${option}</label>
+                const button = document.createElement('button');
+                button.className = 'answer-button';
+                button.onclick = () => this.selectAnswer(index);
+                
+                // Check if this question was already answered
+                if (this.questionAnswered[this.currentQuestion]) {
+                    const userAnswer = this.userAnswers[this.currentQuestion];
+                    const isCorrect = question.correct === index;
+                    const isUserChoice = userAnswer === index;
+                    
+                    if (isUserChoice && isCorrect) {
+                        button.classList.add('correct', 'selected');
+                    } else if (isUserChoice && !isCorrect) {
+                        button.classList.add('incorrect', 'selected');
+                    } else if (isCorrect) {
+                        button.classList.add('correct');
+                    }
+                    button.classList.add('disabled');
+                }
+                
+                button.innerHTML = `
+                    <span class="answer-icon">${String.fromCharCode(65 + index)}</span>
+                    <span class="answer-text">${option.replace(/^[A-D]\)\s*/, '')}</span>
                 `;
-                optionsContainer.appendChild(optionDiv);
+                optionsContainer.appendChild(button);
             });
+        }
+        
+        // Show explanation if question was already answered
+        if (this.questionAnswered[this.currentQuestion] && question.explanation) {
+            this.showExplanation(question.explanation);
         }
         
         // Update button states
         document.getElementById('prev-btn').disabled = this.currentQuestion === 0;
-        document.getElementById('next-btn').style.display = this.currentQuestion === this.questions.length - 1 ? 'none' : 'block';
-        document.getElementById('submit-quiz').style.display = this.currentQuestion === this.questions.length - 1 ? 'block' : 'none';
+        
+        // Show Next/Submit button only if question is answered
+        if (this.questionAnswered[this.currentQuestion]) {
+            if (this.currentQuestion === this.questions.length - 1) {
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('submit-quiz').style.display = 'block';
+            } else {
+                document.getElementById('next-btn').style.display = 'block';
+                document.getElementById('submit-quiz').style.display = 'none';
+            }
+        } else {
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('submit-quiz').style.display = 'none';
+        }
+    }
+
+    selectAnswer(selectedIndex) {
+        if (this.questionAnswered[this.currentQuestion]) return; // Already answered
+        
+        const question = this.questions[this.currentQuestion];
+        const isCorrect = question.correct === selectedIndex;
+        
+        // Save the answer
+        this.userAnswers[this.currentQuestion] = selectedIndex;
+        this.questionAnswered[this.currentQuestion] = true;
+        
+        // Update button appearances
+        const buttons = document.querySelectorAll('.answer-button');
+        buttons.forEach((button, index) => {
+            button.classList.add('disabled');
+            
+            if (index === selectedIndex) {
+                button.classList.add('selected');
+                if (isCorrect) {
+                    button.classList.add('correct');
+                } else {
+                    button.classList.add('incorrect');
+                }
+            } else if (index === question.correct) {
+                button.classList.add('correct');
+            }
+        });
+        
+        // Show explanation
+        if (question.explanation) {
+            this.showExplanation(question.explanation, isCorrect);
+        }
+        
+        // Show next/submit button
+        setTimeout(() => {
+            if (this.currentQuestion === this.questions.length - 1) {
+                document.getElementById('submit-quiz').style.display = 'block';
+            } else {
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }, 500);
+    }
+
+    checkFillBlankAnswer() {
+        if (this.questionAnswered[this.currentQuestion]) return;
+        
+        const question = this.questions[this.currentQuestion];
+        const userAnswer = document.getElementById('fill-answer').value.trim();
+        
+        if (!userAnswer) {
+            alert('Please enter an answer');
+            return;
+        }
+        
+        const isCorrect = userAnswer.toLowerCase() === question.correct.toLowerCase();
+        
+        // Save the answer
+        this.userAnswers[this.currentQuestion] = userAnswer;
+        this.questionAnswered[this.currentQuestion] = true;
+        
+        // Update input appearance
+        const input = document.getElementById('fill-answer');
+        input.disabled = true;
+        input.className += isCorrect ? ' correct' : ' incorrect';
+        
+        // Show explanation
+        if (question.explanation) {
+            this.showExplanation(question.explanation, isCorrect, userAnswer, question.correct);
+        }
+        
+        // Show next/submit button
+        setTimeout(() => {
+            if (this.currentQuestion === this.questions.length - 1) {
+                document.getElementById('submit-quiz').style.display = 'block';
+            } else {
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }, 500);
+    }
+
+    showExplanation(explanation, isCorrect = null, userAnswer = null, correctAnswer = null) {
+        const container = document.getElementById('explanation-container');
+        
+        let explanationHTML = `
+            <div class="explanation-panel show">
+                <h4>${isCorrect === true ? '✅ Correct!' : isCorrect === false ? '❌ Incorrect' : 'Explanation'}</h4>
+                <p>${explanation}</p>
+        `;
+        
+        if (isCorrect === false && userAnswer !== null && correctAnswer !== null) {
+            const userAnswerText = this.questions[this.currentQuestion].options[userAnswer];
+            const correctAnswerText = this.questions[this.currentQuestion].options[correctAnswer];
+            explanationHTML += `
+                <p><strong>Your answer:</strong> ${userAnswerText}</p>
+                <p><strong>Correct answer:</strong> ${correctAnswerText}</p>
+            `;
+        }
+        
+        explanationHTML += '</div>';
+        container.innerHTML = explanationHTML;
     }
 
     nextQuestion() {
-        this.saveAnswer();
         if (this.currentQuestion < this.questions.length - 1) {
             this.currentQuestion++;
             this.displayQuestion();
@@ -638,7 +780,6 @@ Rules:
     }
 
     previousQuestion() {
-        this.saveAnswer();
         if (this.currentQuestion > 0) {
             this.currentQuestion--;
             this.displayQuestion();
@@ -646,17 +787,8 @@ Rules:
     }
 
     saveAnswer() {
-        const question = this.questions[this.currentQuestion];
-        let answer = null;
-        
-        if (question.type === 'fill-blank') {
-            answer = document.getElementById('fill-answer').value;
-        } else {
-            const selected = document.querySelector('input[name="answer"]:checked');
-            answer = selected ? parseInt(selected.value) : null;
-        }
-        
-        this.userAnswers[this.currentQuestion] = answer;
+        // Answer is now saved directly in selectAnswer method
+        // This method is kept for compatibility
     }
 
     submitQuiz() {
@@ -683,16 +815,88 @@ Rules:
 
     showResults() {
         const percentage = Math.round((this.score / this.questions.length) * 100);
+        
+        // Generate detailed review
+        let reviewHTML = '';
+        this.questions.forEach((question, index) => {
+            const userAnswer = this.userAnswers[index];
+            const isCorrect = userAnswer === question.correct;
+            const userAnswerText = userAnswer !== null ? question.options[userAnswer] : 'Not answered';
+            const correctAnswerText = question.options[question.correct];
+            
+            reviewHTML += `
+                <div class="review-item ${isCorrect ? 'correct' : 'incorrect'}">
+                    <div class="review-question">
+                        <span class="question-number">Q${index + 1}</span>
+                        <span class="question-text">${question.question}</span>
+                        <i class="fas ${isCorrect ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                    </div>
+                    <div class="review-answers">
+                        <div class="user-answer">
+                            <strong>Your answer:</strong> ${userAnswerText}
+                        </div>
+                        ${!isCorrect ? `<div class="correct-answer"><strong>Correct answer:</strong> ${correctAnswerText}</div>` : ''}
+                    </div>
+                    ${question.explanation ? `<div class="review-explanation">${question.explanation}</div>` : ''}
+                </div>
+            `;
+        });
+        
+        // Performance analysis
+        const correctCount = this.score;
+        const incorrectCount = this.questions.length - this.score;
+        const performance = percentage >= 80 ? 'Excellent!' : percentage >= 60 ? 'Good job!' : 'Keep practicing!';
+        const recommendation = percentage >= 80 ? 'You have a strong understanding of this topic.' : 
+                             percentage >= 60 ? 'Review the incorrect answers to strengthen your knowledge.' : 
+                             'Consider reviewing the material more thoroughly before retrying.';
+        
         const resultsHTML = `
             <div id="quiz-results" class="page-content active">
                 <div class="results-container">
-                    <h2>Quiz Complete!</h2>
-                    <div class="score-display">
-                        <div class="score-circle">
-                            <span class="score-text">${percentage}%</span>
+                    <div class="results-header">
+                        <h2>Quiz Complete!</h2>
+                        <div class="score-display">
+                            <div class="score-circle">
+                                <span class="score-text">${percentage}%</span>
+                            </div>
+                            <div class="score-details">
+                                <p class="performance">${performance}</p>
+                                <p class="score-breakdown">${correctCount} correct, ${incorrectCount} incorrect out of ${this.questions.length} questions</p>
+                                <p class="recommendation">${recommendation}</p>
+                            </div>
                         </div>
-                        <p>You scored ${this.score} out of ${this.questions.length} questions correctly.</p>
                     </div>
+                    
+                    <div class="results-tabs">
+                        <button class="tab-btn active" data-tab="summary">Summary</button>
+                        <button class="tab-btn" data-tab="review">Review Questions</button>
+                    </div>
+                    
+                    <div class="results-content">
+                        <div id="summary-tab" class="results-tab-content active">
+                            <div class="performance-metrics">
+                                <div class="metric">
+                                    <div class="metric-value">${percentage}%</div>
+                                    <div class="metric-label">Overall Score</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-value">${correctCount}</div>
+                                    <div class="metric-label">Correct Answers</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-value">${incorrectCount}</div>
+                                    <div class="metric-label">Incorrect Answers</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="review-tab" class="results-tab-content">
+                            <div class="question-review">
+                                ${reviewHTML}
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="results-actions">
                         <button class="btn btn-primary" onclick="location.reload()">Create New Quiz</button>
                         <button class="btn btn-outline" onclick="window.quizApp.navigateToPage('create-quiz')">Back to Dashboard</button>
@@ -703,6 +907,17 @@ Rules:
         
         document.querySelector('.main-content').innerHTML += resultsHTML;
         document.getElementById('quiz-interface').classList.remove('active');
+        
+        // Bind tab switching for results
+        document.querySelectorAll('.results-container .tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tab = e.target.dataset.tab;
+                document.querySelectorAll('.results-container .tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.results-tab-content').forEach(c => c.classList.remove('active'));
+                e.target.classList.add('active');
+                document.getElementById(`${tab}-tab`).classList.add('active');
+            });
+        });
     }
 
     async diagnoseApiIssues() {
